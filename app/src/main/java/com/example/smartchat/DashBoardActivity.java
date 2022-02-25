@@ -11,11 +11,14 @@ import android.app.Dialog;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,6 +44,7 @@ public class DashBoardActivity extends AppCompatActivity {
     public ArrayList<Messages> messagesArrayList;
     public ArrayList<Long> timeArrayList;
     public Map<String, Long> timeValues;
+    FloatingActionButton camera;
 
     FirebaseDatabase database;
     DatabaseReference messageReference;
@@ -51,6 +55,19 @@ public class DashBoardActivity extends AppCompatActivity {
 
         Intent login = getIntent();
         personNumber = login.getStringExtra("phoneNumber");
+        camera = findViewById(R.id.camera);
+        camera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    Intent intent = new Intent();
+                    intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(intent,11);
+                }catch (Exception ex){
+                    Log.i("ERROR MESSAGE",ex.getMessage());
+                }
+            }
+        });
 
         SessionManager sessionManager = new SessionManager(DashBoardActivity.this, SessionManager.SESSION_USERSESSION);
         HashMap<String, String> ReceiverData = sessionManager.getUserDetailsFromSession();

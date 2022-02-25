@@ -2,8 +2,14 @@ package com.example.smartchat;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.media.RingtoneManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,7 +27,7 @@ public class LoginActivity extends AppCompatActivity {
 
     EditText Password, phoneNumber;
     Button LoginBtn;
-
+    NotificationManager nmgr;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +36,15 @@ public class LoginActivity extends AppCompatActivity {
         Password = findViewById(R.id.Password);
         phoneNumber = findViewById(R.id.phoneNumber);
         LoginBtn = findViewById(R.id.loginBtn);
+
+        nmgr=(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+            NotificationChannel nchannel=new NotificationChannel("Notification1","My Notification", NotificationManager.IMPORTANCE_DEFAULT);
+            nchannel.enableVibration(true);
+            nchannel.enableLights(true);
+            nchannel.setDescription("Notification from MyActivity");
+            nmgr.createNotificationChannel(nchannel);
+        }
 
         LoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,7 +67,8 @@ public class LoginActivity extends AppCompatActivity {
                                     chatActivity.putExtra("phoneNumber", phoneNumber.getText().toString());
                                     SessionManager sessionManager = new SessionManager(LoginActivity.this,SessionManager.SESSION_USERSESSION);
                                     sessionManager.createLoginSession(_name, phoneNumber.getText().toString(), Password.getText().toString());
-
+                                    NotificationCompat.Builder mybuilder=getNotifyBuilder();
+                                    nmgr.notify(1,mybuilder.build());
                                     startActivity(chatActivity);
                                 }
                                 else {
@@ -73,5 +89,17 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+    }
+    private NotificationCompat.Builder getNotifyBuilder(){
+        Intent intent =new Intent(this,Notified.class);
+        PendingIntent pintent =PendingIntent.getActivity(this,1,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationCompat.Builder nBuilder =new NotificationCompat.Builder(this,"Notification1")
+                .setContentTitle("Notification from Smart Chat")
+                .setContentText("You have successful login")
+                .setSmallIcon(R.drawable.ic_baseline_notifications_none_24)
+                .setContentIntent(pintent)
+                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                .setAutoCancel(true);
+        return nBuilder;
     }
 }
