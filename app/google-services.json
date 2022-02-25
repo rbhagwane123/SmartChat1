@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "739159208348",
+    "project_id": "smartchat-8345e",
+    "storage_bucket": "smartchat-8345e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:739159208348:android:4eb968c0a572b55c821859",
+        "android_client_info": {
+          "package_name": "com.example.smartchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "739159208348-3ug69bjrvklbref20e492qnt4t97s5sl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsmQGirBmCvKxwLp1Dg6YIxxn_WFmRZLQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "739159208348-3ug69bjrvklbref20e492qnt4t97s5sl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
