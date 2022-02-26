@@ -49,8 +49,8 @@ public class LoginActivity extends AppCompatActivity {
         LoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (phoneNumber.getText().toString() != null && Password.getText().toString() != null){
-                    Query checkUser = FirebaseDatabase.getInstance().getReference("Users").orderByChild("phoneNumber").equalTo(phoneNumber.getText().toString());
+                if (phoneNumber.getText().toString() != null && Password.getText().toString() != null){   // CONDITION FOR CHECKING FIELDS ARE NOT EMPTY
+                    Query checkUser = FirebaseDatabase.getInstance().getReference("Users").orderByChild("phoneNumber").equalTo(phoneNumber.getText().toString());//CHECKING IN DATA BASE VALUE EXISTS OR NOT
                     checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {

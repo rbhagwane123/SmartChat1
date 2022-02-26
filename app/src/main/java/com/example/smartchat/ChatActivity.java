@@ -64,7 +64,6 @@ public class ChatActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         personReceiverNumber = chat.getStringExtra("chatData");
         receveName = chat.getStringExtra("receiveName");
 
-        Toast.makeText(ChatActivity.this, personReceiverNumber, Toast.LENGTH_SHORT).show();
         receiverName = findViewById(R.id.receiverName);
         textMessage = findViewById(R.id.textMessage);
         sendBtn = findViewById(R.id.sendBtn);

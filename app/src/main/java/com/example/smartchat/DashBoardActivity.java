@@ -2,20 +2,22 @@ package com.example.smartchat;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.Activity;
 import android.app.Dialog;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -23,6 +25,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -38,13 +41,20 @@ public class DashBoardActivity extends AppCompatActivity {
     SwipeRefreshLayout refreshLayout;;
     public String ReceiverNumber;
     String personNumber;
-    Dialog dialog;
-    Button CANCEL,LOGOUT;
+    Dialog dialog, dialog2;
+    Button CANCEL,LOGOUT, CANCEL2, CHAT;
 
     public ArrayList<Messages> messagesArrayList;
     public ArrayList<Long> timeArrayList;
     public Map<String, Long> timeValues;
+    public ArrayList<String> personsList;
     FloatingActionButton camera;
+    ImageView addCall;
+    ArrayAdapter<String> arrayAdapterSelectNo;
+    String selectedNumber[];
+    String name=null;
+
+    AutoCompleteTextView selectPhoneNumber;
 
     FirebaseDatabase database;
     DatabaseReference messageReference;
@@ -52,10 +62,64 @@ public class DashBoardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_board);
-
+        getSupportActionBar().hide();
         Intent login = getIntent();
         personNumber = login.getStringExtra("phoneNumber");
         camera = findViewById(R.id.camera);
+        addCall = findViewById(R.id.addCall);
+
+        addCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogCreationAddCall();
+                dialog2.show();
+                CANCEL2 = dialog2.findViewById(R.id.CANCEL2);
+                CHAT = dialog2.findViewById(R.id.CHAT);
+                selectPhoneNumber = dialog2.findViewById(R.id.selectPhoneNumber);
+
+                selectedNumber = fetchValuesfromDataBase();
+                arrayAdapterSelectNo = new ArrayAdapter<String>(getApplicationContext(), R.layout.items_list_chats, selectedNumber);
+                selectPhoneNumber.setAdapter(arrayAdapterSelectNo);
+
+                CANCEL2.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog2.dismiss();
+                    }
+                });
+
+                CHAT.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent chatActivity = new Intent(DashBoardActivity.this, ChatActivity.class);
+                        chatActivity.putExtra("chatData", selectPhoneNumber.getText().toString());
+
+                        Query checkUserSender = database.getReference("Users").orderByChild("phoneNumber").equalTo(selectPhoneNumber.getText().toString());
+                        checkUserSender.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.exists()){
+                                    String _fullName =  snapshot.child(selectPhoneNumber.getText().toString()).child("personName").getValue(String.class);
+                                    name = _fullName;
+                                    chatActivity.putExtra("receiveName",name);
+                                    dialog2.dismiss();
+                                    startActivity(chatActivity);
+                                }else{
+                                    Toast.makeText(DashBoardActivity.this, "No person with number", Toast.LENGTH_SHORT).show();
+                                }
+
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                    }
+                });
+
+            }
+        });
         camera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,6 +164,32 @@ public class DashBoardActivity extends AppCompatActivity {
         noteAdapter = new NotificationAdapter(DashBoardActivity.this, messagesArrayList);
         chatsBlockView.setAdapter(noteAdapter);
     }
+
+
+    public String[] fetchValuesfromDataBase() {
+        personsList = new ArrayList<>();
+        DatabaseReference keyReference = database.getReference("Users");
+        keyReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    personsList.add(dataSnapshot.getKey());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        String phoneNumberList [] = new String[personsList.size()];
+        for (int i=0;i<personsList.size();i++)
+        {
+            phoneNumberList[i] = personsList.get(i);
+        }
+        return phoneNumberList;
+    }
+
     private void chatCall() {
         final String[] chckPerson = new String[1];
         Date date = new Date();
@@ -172,9 +262,17 @@ public class DashBoardActivity extends AppCompatActivity {
         dialog.setCancelable(false);
         dialog.getWindow().getAttributes().windowAnimations = R.style.animation;
         dialog.setCanceledOnTouchOutside(true);
-
     }
 
+    public void dialogCreationAddCall() {
+        dialog2 = new Dialog(DashBoardActivity.this);
+        dialog2.setContentView(R.layout.add_call_layout);
+        dialog2.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//        dialog.getWindow().setBackgroundDrawable(getResources().getDrawable(R.drawable.info_layout_background_style));
+        dialog2.setCancelable(false);
+        dialog2.getWindow().getAttributes().windowAnimations = R.style.animation;
+        dialog2.setCanceledOnTouchOutside(true);
+    }
     @Override
     public void onBackPressed() {
 
