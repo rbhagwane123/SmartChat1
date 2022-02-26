@@ -19,7 +19,7 @@ import com.google.firebase.database.FirebaseDatabase;
 public class SignUpActivity extends AppCompatActivity {
 
     Button SignUp;
-    EditText personName,personNumber,personDob,personPass;
+    EditText personName, personNumber, personDob, personPass;
 
     FirebaseAuth auth;
     FirebaseDatabase database;
@@ -31,10 +31,10 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
 
         SignUp = findViewById(R.id.SignUp);
-        personName= findViewById(R.id.personName);
-        personNumber= findViewById(R.id.personNumber);
-        personDob= findViewById(R.id.personDob);
-        personPass= findViewById(R.id.personPass);
+        personName = findViewById(R.id.personName);
+        personNumber = findViewById(R.id.personNumber);
+        personDob = findViewById(R.id.personDob);
+        personPass = findViewById(R.id.personPass);
 
         database = FirebaseDatabase.getInstance("https://smartchat-8345e-default-rtdb.firebaseio.com/");
 
@@ -44,21 +44,23 @@ public class SignUpActivity extends AppCompatActivity {
                 if (personName.getText().toString() != null &&
                         personNumber.getText().toString() != null &&
                         personDob.getText().toString() != null &&
-                        personPass.getText().toString() != null){
+                        personPass.getText().toString() != null) {
 
                     DatabaseReference reference = database.getReference().child("Users").child(personNumber.getText().toString());
                     Users users = new Users(personName.getText().toString(), personNumber.getText().toString(), personDob.getText().toString(), personPass.getText().toString());
                     reference.setValue(users).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                Toast.makeText(SignUpActivity.this, "values set", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(SignUpActivity.this, DashBoardActivity.class));
+                            if (task.isSuccessful()) {
+
+                                Intent dash = new Intent(SignUpActivity.this, DashBoardActivity.class);
+                                dash.putExtra("phoneNumber", personNumber.getText().toString());
+                                startActivity(dash);
                             }
                         }
                     });
 
-                }else{
+                } else {
                     Toast.makeText(SignUpActivity.this, "Fields left empty", Toast.LENGTH_SHORT).show();
                 }
             }

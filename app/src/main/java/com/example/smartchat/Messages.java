@@ -1,5 +1,6 @@
 package com.example.smartchat;
 
+//MODEL CLASS FOR MESSAGES TO PERFORM GET AND SET
 public class Messages {
 
     public String senderID;

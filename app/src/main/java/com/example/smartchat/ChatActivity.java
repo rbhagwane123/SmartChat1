@@ -60,6 +60,7 @@ public class ChatActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         setContentView(R.layout.activity_chat);
         getSupportActionBar().hide();
 
+        //VALUES GETTING FROM PREVIOUS ACTIVITY
         Intent chat = getIntent();
         personReceiverNumber = chat.getStringExtra("chatData");
         receveName = chat.getStringExtra("receiveName");
@@ -73,7 +74,7 @@ public class ChatActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         more = findViewById(R.id.more);
         call.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v) { //PHONE CALL BUTTON CODE
                 Intent intent=new Intent(Intent.ACTION_DIAL, Uri.parse("tel:"+personReceiverNumber));
                 startActivity(intent);
             }
@@ -82,7 +83,7 @@ public class ChatActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupMenu popupMenu = new PopupMenu(ChatActivity.this, v);
+                PopupMenu popupMenu = new PopupMenu(ChatActivity.this, v); //3-DOTS CODE
                 popupMenu.setOnMenuItemClickListener(ChatActivity.this);
                 popupMenu.inflate(R.menu.chat_menu);
                 popupMenu.show();
@@ -92,7 +93,7 @@ public class ChatActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         messagesArrayList = new ArrayList<>();
         chatBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v) {//BACK BUTTON TO PREVIOUS ACTIVITY
                 Intent previous = new Intent(ChatActivity.this, DashBoardActivity.class);
                 previous.putExtra("phoneNumber", senderUID);
                 startActivity(previous);
@@ -108,12 +109,12 @@ public class ChatActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         senderUID = senderData.get(SessionManager.KEY_PHONENUMBER);
         senderName = senderData.get(SessionManager.KEY_FULLNAME);
         receiverUID = personReceiverNumber;
-        Query checkUserSender = FirebaseDatabase.getInstance().getReference("Users").orderByChild("mobileNumber").equalTo(senderUID);
+        Query checkUserSender = FirebaseDatabase.getInstance().getReference("Users").orderByChild("phoneNumber").equalTo(senderUID);
         checkUserSender.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String _fullName = snapshot.child(senderUID).child("fullName").getValue(String.class);
-                String _dob = snapshot.child(senderUID).child("d_o_b").getValue(String.class);
+                String _fullName = snapshot.child(senderUID).child("personNumber").getValue(String.class);
+                String _dob = snapshot.child(senderUID).child("personDOB").getValue(String.class);
             }
 
             @Override
@@ -121,17 +122,19 @@ public class ChatActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             }
         });
 
+        //CODING FOR RECYCLER VIEW FOR BLOCK VIEW MESSAGE
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
         messageAdapter.setLayoutManager(linearLayoutManager);
         onlyAdapter = new MessagesAdapter(ChatActivity.this, messagesArrayList, senderUID);
         messageAdapter.setAdapter(onlyAdapter);
 
+        //SEPARATE ROOM CREATION  CODE
         senderRoom = senderUID + receiverUID;
         receiverRoom = receiverUID + senderUID;
         chatReferenceCall();
 
-        sendBtn.setOnClickListener(new View.OnClickListener() {
+        sendBtn.setOnClickListener(new View.OnClickListener() {//SETTINGS VALUES INSIDE DATABASE
             @Override
             public void onClick(View v) {
                 String textmessage = textMessage.getText().toString();
@@ -169,8 +172,7 @@ public class ChatActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         });
     }
 
-
-    public void chatReferenceCall() {
+    public void chatReferenceCall() { //FUNCTION IS FOR CHECKING THE MESSAGES OCCUR FROM SENDER OR RECEIVER
         database = FirebaseDatabase.getInstance();
         DatabaseReference chatReference = database.getReference().child("Chats").child(senderRoom).child("messages");
         chatReference.addValueEventListener(new ValueEventListener() {
